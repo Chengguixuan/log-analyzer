@@ -1,0 +1,135 @@
+{
+    "sql_injection": {
+        "description": "SQL注入攻击特征",
+        "patterns": [
+            "union.*select",
+            "or\\s+\\d+=\\d+",
+            "and\\s+\\d+=\\d+",
+            "sleep\\(",
+            "information_schema",
+            "into\\s+outfile",
+            "--",
+            "#",
+            "\\*/"
+        ]
+    },
+    "xss_reflected_stored": {
+        "description": "反射型/存储型XSS特征（出现在URL或请求体中）",
+        "patterns": [
+            "<script>",
+            "<img.*onerror=",
+            "<svg.*onload=",
+            "javascript:",
+            "onerror=",
+            "onload=",
+            "onclick=",
+            "alert\\(",
+            "prompt\\(",
+            "confirm\\(",
+            "document\\.cookie"
+        ]
+    },
+    "xss_dom": {
+        "description": "DOM型XSS特征（出现在URL的hash或参数中）",
+        "patterns": [
+            "#<script>",
+            "#<img.*onerror=",
+            "#<svg.*onload=",
+            "javascript:.*#"
+        ],
+        "note": "注意：DOM型XSS可能不出现在服务器日志中，需要前端监控"
+    },
+    "path_traversal": {
+        "description": "路径遍历攻击特征",
+        "patterns": [
+            "\\.\\./",
+            "\\.\\.\\\\",
+            "etc/passwd",
+            "etc/shadow",
+            "windows\\\\win.ini",
+            "boot\\.ini",
+            "%2e%2e%2f",
+            "%252e%252e%252f"
+        ]
+    },
+    "command_injection": {
+        "description": "命令注入攻击特征",
+        "patterns": [
+            "\\|\\s+ls",
+            "\\|\\s+cat",
+            "\\|\\s+whoami",
+            "\\|\\s+id",
+            "\\|\\s+wget",
+            "\\|\\s+curl",
+            "\\|\\s+n[cC]",
+            "\\|\\s+bash",
+            "\\|\\s+sh",
+            "`.*`",
+            "\\$\\("
+        ]
+    },
+    "csrf_attempt": {
+        "description": "CSRF攻击尝试（缺少Referer或Origin异常）",
+        "patterns": [
+            "Referer:\\s*https?://(?!.*yourdomain\\.com)"
+        ],
+        "note": "需要在代码逻辑中检查，不完全是正则匹配"
+    },
+    "ssrf_attempt": {
+        "description": "SSRF攻击特征（尝试访问内网或本地）",
+        "patterns": [
+            "127\\.0\\.0\\.1",
+            "localhost",
+            "169\\.254\\.",
+            "192\\.168\\.",
+            "10\\.",
+            "172\\.1[6-9]\\.",
+            "172\\.2[0-9]\\.",
+            "172\\.3[0-1]\\.",
+            "metadata\\.google",
+            "169\\.254\\.169\\.254"
+        ]
+    },
+    "file_upload_attack": {
+        "description": "文件上传攻击特征（文件名中的恶意内容）",
+        "patterns": [
+            "\\.php$",
+            "\\.php\\.",
+            "\\.phtml$",
+            "\\.php\\d+$",
+            "\\.asp$",
+            "\\.aspx$",
+            "\\.jsp$",
+            "\\.war$",
+            "Content-Type:\\s*image/.*\\.php"
+        ]
+    },
+    "clickjacking_attempt": {
+        "description": "点击劫持尝试（检查Referer）",
+        "patterns": [],
+        "note": "主要通过HTTP头检测：X-Frame-Options 或 CSP"
+    },
+    "cors_misuse": {
+        "description": "CORS滥用尝试（Origin头异常）",
+        "patterns": [
+            "Origin:\\s*https?://.*\\.evil\\.com",
+            "Origin:\\s*null"
+        ],
+        "note": "需要服务器端配置验证"
+    },
+    "access_control_abuse": {
+        "description": "访问控制绕过尝试",
+        "patterns": [
+            "/admin",
+            "/administrator",
+            "/manager",
+            "/backup",
+            "/config",
+            "/\\.git",
+            "/\\.svn",
+            "/\\.env",
+            "/phpmyadmin"
+        ],
+        "note": "这些路径本身不一定是攻击，但频繁访问可能表示扫描"
+    }
+}
