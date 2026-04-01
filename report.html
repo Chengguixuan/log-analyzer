@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+        <html lang="zh-CN">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>日志分析报告</title>
+            <style>
+                body {
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    margin: 0;
+                    padding: 20px;
+                    background-color: #f5f5f5;
+                    color: #333;
+                }
+                .container {
+                    max-width: 1200px;
+                    margin: 0 auto;
+                    background-color: white;
+                    padding: 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                }
+                h1, h2, h3 {
+                    color: #2c3e50;
+                }
+                .summary {
+                    background-color: #ecf0f1;
+                    padding: 15px;
+                    border-radius: 5px;
+                    margin-bottom: 20px;
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                    gap: 10px;
+                }
+                .summary-item {
+                    background-color: white;
+                    padding: 10px;
+                    border-radius: 5px;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                }
+                .summary-item .label {
+                    font-size: 12px;
+                    color: #7f8c8d;
+                }
+                .summary-item .value {
+                    font-size: 24px;
+                    font-weight: bold;
+                    color: #2c3e50;
+                }
+                .attack-type {
+                    color: #e74c3c;
+                    font-weight: bold;
+                }
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin: 20px 0;
+                }
+                th, td {
+                    border: 1px solid #ddd;
+                    padding: 12px;
+                    text-align: left;
+                }
+                th {
+                    background-color: #3498db;
+                    color: white;
+                }
+                tr:nth-child(even) {
+                    background-color: #f9f9f9;
+                }
+                tr:hover {
+                    background-color: #f1f1f1;
+                }
+                .chart-container {
+                    height: 300px;
+                    margin: 20px 0;
+                }
+                .footer {
+                    margin-top: 30px;
+                    padding-top: 20px;
+                    border-top: 1px solid #ddd;
+                    text-align: center;
+                    color: #7f8c8d;
+                }
+            </style>
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        </head>
+        <body>
+            <div class="container">
+                <h1>📊 日志分析报告</h1>
+
+                <div class="summary">
+                    <div class="summary-item">
+                        <div class="label">总日志行数</div>
+                        <div class="value">12</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="label">攻击行数</div>
+                        <div class="value">8</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="label">攻击占比</div>
+                        <div class="value">66.67%</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="label">独立IP数</div>
+                        <div class="value">7</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="label">被攻击URL</div>
+                        <div class="value">8</div>
+                    </div>
+                </div>
+
+                <h2>📈 攻击类型分布</h2>
+                <div class="chart-container">
+                    <canvas id="attackChart"></canvas>
+                </div>
+
+                <h2>攻击类型统计</h2>
+                <table>
+                    <tr>
+                        <th>攻击类型</th>
+                        <th>次数</th>
+                        <th>占比</th>
+                    </tr>
+                    
+                <tr>
+                    <td class="attack-type">file_upload_attack</td>
+                    <td>3</td>
+                    <td>37.5%</td>
+                </tr>
+                <tr>
+                    <td class="attack-type">access_control_abuse</td>
+                    <td>3</td>
+                    <td>37.5%</td>
+                </tr>
+                <tr>
+                    <td class="attack-type">path_traversal</td>
+                    <td>3</td>
+                    <td>37.5%</td>
+                </tr>
+                <tr>
+                    <td class="attack-type">sql_injection</td>
+                    <td>2</td>
+                    <td>25.0%</td>
+                </tr>
+                <tr>
+                    <td class="attack-type">xss_reflected_stored</td>
+                    <td>1</td>
+                    <td>12.5%</td>
+                </tr>
+                </table>
+
+                <h2>🔍 攻击源IP TOP10</h2>
+                <table>
+                    <tr>
+                        <th>IP地址</th>
+                        <th>总攻击次数</th>
+                        <th>主要攻击类型</th>
+                        <th>详情</th>
+                    </tr>
+                    
+                <tr>
+                    <td>45.155.205.233</td>
+                    <td>5</td>
+                    <td>path_traversal</td>
+                    <td>path_traversal(2), access_control_abuse(2), file_upload_attack(1)</td>
+                </tr>
+                <tr>
+                    <td>10.0.0.50</td>
+                    <td>2</td>
+                    <td>sql_injection</td>
+                    <td>sql_injection(1), access_control_abuse(1)</td>
+                </tr>
+                <tr>
+                    <td>192.168.1.101</td>
+                    <td>1</td>
+                    <td>file_upload_attack</td>
+                    <td>file_upload_attack(1)</td>
+                </tr>
+                <tr>
+                    <td>192.168.1.100</td>
+                    <td>1</td>
+                    <td>xss_reflected_stored</td>
+                    <td>xss_reflected_stored(1)</td>
+                </tr>
+                <tr>
+                    <td>192.168.1.102</td>
+                    <td>1</td>
+                    <td>sql_injection</td>
+                    <td>sql_injection(1)</td>
+                </tr>
+                <tr>
+                    <td>10.0.0.51</td>
+                    <td>1</td>
+                    <td>file_upload_attack</td>
+                    <td>file_upload_attack(1)</td>
+                </tr>
+                <tr>
+                    <td>192.168.1.103</td>
+                    <td>1</td>
+                    <td>path_traversal</td>
+                    <td>path_traversal(1)</td>
+                </tr>
+                </table>
+
+                <h2>📝 最近20条攻击详情</h2>
+                <table>
+                    <tr>
+                        <th>时间</th>
+                        <th>IP</th>
+                        <th>方法</th>
+                        <th>URL/消息</th>
+                        <th>攻击类型</th>
+                    </tr>
+                    
+                <tr>
+                    <td>09/Mar/2024:08:2</td>
+                    <td>192.168.1.101</td>
+                    <td>POST</td>
+                    <td>/login.php</td>
+                    <td class="attack-type">file_upload_attack</td>
+                </tr>
+                <tr>
+                    <td>09/Mar/2024:08:2</td>
+                    <td>10.0.0.50</td>
+                    <td>GET</td>
+                    <td>/admin.php?id=1%20union%20select%201,2,3</td>
+                    <td class="attack-type">sql_injection, access_control_abuse</td>
+                </tr>
+                <tr>
+                    <td>09/Mar/2024:08:2</td>
+                    <td>192.168.1.100</td>
+                    <td>GET</td>
+                    <td>/search?q=<script>alert(1)</script></td>
+                    <td class="attack-type">xss_reflected_stored</td>
+                </tr>
+                <tr>
+                    <td>09/Mar/2024:08:2</td>
+                    <td>45.155.205.233</td>
+                    <td>GET</td>
+                    <td>/wp-admin/admin-ajax.php?action=duplicator_downloa...</td>
+                    <td class="attack-type">path_traversal, access_control_abuse</td>
+                </tr>
+                <tr>
+                    <td>09/Mar/2024:08:2</td>
+                    <td>192.168.1.102</td>
+                    <td>GET</td>
+                    <td>/products?id=1%20AND%20SLEEP(5)</td>
+                    <td class="attack-type">sql_injection</td>
+                </tr>
+                <tr>
+                    <td>09/Mar/2024:08:2</td>
+                    <td>10.0.0.51</td>
+                    <td>POST</td>
+                    <td>/comment.php</td>
+                    <td class="attack-type">file_upload_attack</td>
+                </tr>
+                <tr>
+                    <td>09/Mar/2024:08:2</td>
+                    <td>192.168.1.103</td>
+                    <td>GET</td>
+                    <td>/images/../../../../etc/passwd</td>
+                    <td class="attack-type">path_traversal</td>
+                </tr>
+                <tr>
+                    <td>09/Mar/2024:08:2</td>
+                    <td>45.155.205.233</td>
+                    <td>GET</td>
+                    <td>/wp-admin/admin-ajax.php?action=updraft_download_b...</td>
+                    <td class="attack-type">path_traversal, file_upload_attack, access_control_abuse</td>
+                </tr>
+                </table>
+
+                <div class="footer">
+                    报告生成时间: 2026-04-01T20:14:27.557100 | 分析耗时: 0秒
+                </div>
+            </div>
+
+            <script>
+                const ctx = document.getElementById('attackChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ["file_upload_attack", "access_control_abuse", "path_traversal", "sql_injection", "xss_reflected_stored"],
+                        datasets: [{
+                            label: '攻击次数',
+                            data: [3, 3, 3, 2, 1],
+                            backgroundColor: 'rgba(52, 152, 219, 0.8)',
+                            borderColor: 'rgba(41, 128, 185, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }
+                        }
+                    }
+                });
+            </script>
+        </body>
+        </html>

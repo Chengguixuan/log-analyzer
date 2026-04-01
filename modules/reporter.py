@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 import json
 from collections import Counter, defaultdict
 from datetime import datetime
@@ -135,157 +132,19 @@ class ReportGenerator:
         """
         stats = self.get_summary_stats()
         
-        html = f"""<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>日志分析报告</title>
-    <style>
-        body {{
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
-            color: #333;
-        }}
-        .container {{
-            max-width: 1200px;
-            margin: 0 auto;
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }}
-        h1, h2, h3 {{
-            color: #2c3e50;
-        }}
-        .summary {{
-            background-color: #ecf0f1;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 10px;
-        }}
-        .summary-item {{
-            background-color: white;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }}
-        .summary-item .label {{
-            font-size: 12px;
-            color: #7f8c8d;
-        }}
-        .summary-item .value {{
-            font-size: 24px;
-            font-weight: bold;
-            color: #2c3e50;
-        }}
-        .attack-type {{
-            color: #e74c3c;
-            font-weight: bold;
-        }}
-        table {{
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }}
-        th, td {{
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: left;
-        }}
-        th {{
-            background-color: #3498db;
-            color: white;
-        }}
-        tr:nth-child(even) {{
-            background-color: #f9f9f9;
-        }}
-        tr:hover {{
-            background-color: #f1f1f1;
-        }}
-        .chart-container {{
-            height: 300px;
-            margin: 20px 0;
-        }}
-        .footer {{
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #ddd;
-            text-align: center;
-            color: #7f8c8d;
-        }}
-    </style>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body>
-    <div class="container">
-        <h1>📊 日志分析报告</h1>
-        
-        <div class="summary">
-            <div class="summary-item">
-                <div class="label">总日志行数</div>
-                <div class="value">{stats['total_lines']:,}</div>
-            </div>
-            <div class="summary-item">
-                <div class="label">攻击行数</div>
-                <div class="value">{stats['attack_lines']:,}</div>
-            </div>
-            <div class="summary-item">
-                <div class="label">攻击占比</div>
-                <div class="value">{stats['attack_rate']:.2f}%</div>
-            </div>
-            <div class="summary-item">
-                <div class="label">独立IP数</div>
-                <div class="value">{stats['unique_ips']:,}</div>
-            </div>
-            <div class="summary-item">
-                <div class="label">被攻击URL</div>
-                <div class="value">{stats['unique_urls']:,}</div>
-            </div>
-        </div>
-        
-        <h2>📈 攻击类型分布</h2>
-        <div class="chart-container">
-            <canvas id="attackChart"></canvas>
-        </div>
-        
-        <table>
-            <tr>
-                <th>攻击类型</th>
-                <th>次数</th>
-                <th>占比</th>
-            </tr>
-"""
-        
-        # 攻击类型表格
+        # ========== 准备攻击类型表格数据 ==========
+        attack_rows = ""
         for attack_type, count in self.attack_counter.most_common():
             percentage = (count / self.attack_lines * 100) if self.attack_lines > 0 else 0
-            html += f"""
-            <tr>
-                <td class="attack-type">{attack_type}</td>
-                <td>{count}</td>
-                <td>{percentage:.1f}%</td>
-            </tr>"""
+            attack_rows += f"""
+                <tr>
+                    <td class="attack-type">{attack_type}</td>
+                    <td>{count}</td>
+                    <td>{percentage:.1f}%</td>
+                </tr>"""
         
-        html += """
-        </table>
-        
-        <h2>🔍 攻击源IP TOP10</h2>
-        <table>
-            <tr>
-                <th>IP地址</th>
-                <th>总攻击次数</th>
-                <th>主要攻击类型</th>
-                <th>详情</th>
-            </tr>
-"""
-        
-        # TOP 10 IP
+        # ========== 准备 TOP 10 IP 数据 ==========
+        ip_rows = ""
         sorted_ips = sorted(
             self.ip_attack_counter.items(),
             key=lambda x: sum(x[1].values()),
@@ -296,82 +155,225 @@ class ReportGenerator:
             total = sum(attacks.values())
             main_attack = attacks.most_common(1)[0][0] if attacks else '未知'
             details = ', '.join([f"{k}({v})" for k, v in attacks.most_common(3)])
-            html += f"""
-            <tr>
-                <td>{ip}</td>
-                <td>{total}</td>
-                <td>{main_attack}</td>
-                <td>{details}</td>
-            </tr>"""
+            ip_rows += f"""
+                <tr>
+                    <td>{ip}</td>
+                    <td>{total}</td>
+                    <td>{main_attack}</td>
+                    <td>{details}</td>
+                </tr>"""
         
-        html += """
-        </table>
-        
-        <h2>📝 最近20条攻击详情</h2>
-        <table>
-            <tr>
-                <th>时间</th>
-                <th>IP</th>
-                <th>方法</th>
-                <th>URL/消息</th>
-                <th>攻击类型</th>
-            </tr>
-"""
-        
-        # 最近20条攻击
+        # ========== 准备最近攻击详情数据 ==========
+        detail_rows = ""
         for log in self.detailed_logs[-20:]:
             time = log.get('time', log.get('timestamp', ''))[:16]
             ip = log.get('ip', log.get('hostname', 'unknown'))
             method = log.get('method', '-')
             url = log.get('url', log.get('message', 'unknown'))[:50]
             attacks = ', '.join(log.get('attacks', []))
-            html += f"""
-            <tr>
-                <td>{time}</td>
-                <td>{ip}</td>
-                <td>{method}</td>
-                <td>{url}{'...' if len(log.get('url', '')) > 50 else ''}</td>
-                <td class="attack-type">{attacks}</td>
-            </tr>"""
+            url_display = url + ('...' if len(log.get('url', '')) > 50 else '')
+            detail_rows += f"""
+                <tr>
+                    <td>{time}</td>
+                    <td>{ip}</td>
+                    <td>{method}</td>
+                    <td>{url_display}</td>
+                    <td class="attack-type">{attacks}</td>
+                </tr>"""
         
-        html += f"""
-        </table>
+        # ========== 图表数据（JSON 序列化） ==========
+        top_attacks = self.attack_counter.most_common(10)
+        chart_labels = json.dumps([a for a, _ in top_attacks])
+        chart_data = json.dumps([c for _, c in top_attacks])
         
-        <div class="footer">
-            报告生成时间: {stats['end_time']} | 分析耗时: {self._get_elapsed_time()}
-        </div>
-    </div>
-    
-    <script>
-        const ctx = document.getElementById('attackChart').getContext('2d');
-        new Chart(ctx, {{
-            type: 'bar',
-            data: {{
-                labels: {json.dumps([a for a, _ in self.attack_counter.most_common(10)])},
-                datasets: [{{
-                    label: '攻击次数',
-                    data: {json.dumps([c for _, c in self.attack_counter.most_common(10)])},
-                    backgroundColor: 'rgba(52, 152, 219, 0.8)',
-                    borderColor: 'rgba(41, 128, 185, 1)',
-                    borderWidth: 1
-                }}]
-            }},
-            options: {{
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {{
-                    y: {{
-                        beginAtZero: true,
-                        ticks: {{
-                            stepSize: 1
+        # ========== 完整 HTML 模板 ==========
+        html = f"""<!DOCTYPE html>
+        <html lang="zh-CN">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>日志分析报告</title>
+            <style>
+                body {{
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    margin: 0;
+                    padding: 20px;
+                    background-color: #f5f5f5;
+                    color: #333;
+                }}
+                .container {{
+                    max-width: 1200px;
+                    margin: 0 auto;
+                    background-color: white;
+                    padding: 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                }}
+                h1, h2, h3 {{
+                    color: #2c3e50;
+                }}
+                .summary {{
+                    background-color: #ecf0f1;
+                    padding: 15px;
+                    border-radius: 5px;
+                    margin-bottom: 20px;
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                    gap: 10px;
+                }}
+                .summary-item {{
+                    background-color: white;
+                    padding: 10px;
+                    border-radius: 5px;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                }}
+                .summary-item .label {{
+                    font-size: 12px;
+                    color: #7f8c8d;
+                }}
+                .summary-item .value {{
+                    font-size: 24px;
+                    font-weight: bold;
+                    color: #2c3e50;
+                }}
+                .attack-type {{
+                    color: #e74c3c;
+                    font-weight: bold;
+                }}
+                table {{
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin: 20px 0;
+                }}
+                th, td {{
+                    border: 1px solid #ddd;
+                    padding: 12px;
+                    text-align: left;
+                }}
+                th {{
+                    background-color: #3498db;
+                    color: white;
+                }}
+                tr:nth-child(even) {{
+                    background-color: #f9f9f9;
+                }}
+                tr:hover {{
+                    background-color: #f1f1f1;
+                }}
+                .chart-container {{
+                    height: 300px;
+                    margin: 20px 0;
+                }}
+                .footer {{
+                    margin-top: 30px;
+                    padding-top: 20px;
+                    border-top: 1px solid #ddd;
+                    text-align: center;
+                    color: #7f8c8d;
+                }}
+            </style>
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        </head>
+        <body>
+            <div class="container">
+                <h1>📊 日志分析报告</h1>
+
+                <div class="summary">
+                    <div class="summary-item">
+                        <div class="label">总日志行数</div>
+                        <div class="value">{stats['total_lines']:,}</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="label">攻击行数</div>
+                        <div class="value">{stats['attack_lines']:,}</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="label">攻击占比</div>
+                        <div class="value">{stats['attack_rate']:.2f}%</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="label">独立IP数</div>
+                        <div class="value">{stats['unique_ips']:,}</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="label">被攻击URL</div>
+                        <div class="value">{stats['unique_urls']:,}</div>
+                    </div>
+                </div>
+
+                <h2>📈 攻击类型分布</h2>
+                <div class="chart-container">
+                    <canvas id="attackChart"></canvas>
+                </div>
+
+                <h2>攻击类型统计</h2>
+                <table>
+                    <tr>
+                        <th>攻击类型</th>
+                        <th>次数</th>
+                        <th>占比</th>
+                    </tr>
+                    {attack_rows}
+                </table>
+
+                <h2>🔍 攻击源IP TOP10</h2>
+                <table>
+                    <tr>
+                        <th>IP地址</th>
+                        <th>总攻击次数</th>
+                        <th>主要攻击类型</th>
+                        <th>详情</th>
+                    </tr>
+                    {ip_rows}
+                </table>
+
+                <h2>📝 最近20条攻击详情</h2>
+                <table>
+                    <tr>
+                        <th>时间</th>
+                        <th>IP</th>
+                        <th>方法</th>
+                        <th>URL/消息</th>
+                        <th>攻击类型</th>
+                    </tr>
+                    {detail_rows}
+                </table>
+
+                <div class="footer">
+                    报告生成时间: {stats['end_time']} | 分析耗时: {self._get_elapsed_time()}
+                </div>
+            </div>
+
+            <script>
+                const ctx = document.getElementById('attackChart').getContext('2d');
+                new Chart(ctx, {{
+                    type: 'bar',
+                    data: {{
+                        labels: {chart_labels},
+                        datasets: [{{
+                            label: '攻击次数',
+                            data: {chart_data},
+                            backgroundColor: 'rgba(52, 152, 219, 0.8)',
+                            borderColor: 'rgba(41, 128, 185, 1)',
+                            borderWidth: 1
+                        }}]
+                    }},
+                    options: {{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {{
+                            y: {{
+                                beginAtZero: true,
+                                ticks: {{
+                                    stepSize: 1
+                                }}
+                            }}
                         }}
                     }}
-                }}
-            }}
-        }});
-    </script>
-</body>
-</html>"""
+                }});
+            </script>
+        </body>
+        </html>"""
         
         # 确保目录存在
         os.makedirs(os.path.dirname(os.path.abspath(output_file)), exist_ok=True)

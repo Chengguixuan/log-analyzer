@@ -2,114 +2,64 @@
 # -*- coding: utf-8 -*-
 
 import re
+import json
+from pathlib import Path
 
 class LogParser:
-    """日志解析器：支持多种日志格式"""
+    """日志解析器：支持多种日志格式，配置在 log_formats.json"""
     
-    # 预编译正则表达式，提高性能
-    _nginx_pattern = re.compile(
-        r'^(\S+) - - \[(.*?)\] "(\S+) (\S+) [^"]+" (\d+) (\d+) "([^"]*)" "([^"]*)"'
-    )
-    
-    _apache_pattern = re.compile(
-        r'^(\S+) - - \[(.*?)\] "(\S+) (\S+) [^"]+" (\d+) (\d+)(?: "([^"]*)" "([^"]*)")?'
-    )
-    
-    _syslog_pattern = re.compile(
-        r'^(\w+\s+\d+\s+\d+:\d+:\d+)\s+(\S+)\s+(\S+)\[(\d+)\]:\s+(.*)$'
-    )
-    
-    def __init__(self, log_type='nginx'):
+    def __init__(self, log_type='nginx', formats_file='config/log_formats.json'):
         """
         初始化解析器
-        :param log_type: 日志类型，支持 nginx/apache/syslog
+        :param log_type: 日志类型，如 nginx, apache_combined, apache_common
+        :param formats_file: 日志格式配置文件路径
         """
-        self.log_type = log_type.lower()
+        self.log_type = log_type
+        self.formats = self._load_formats(formats_file)
+        
+        if log_type not in self.formats:
+            raise ValueError(f"不支持的日志类型: {log_type}。支持的: {list(self.formats.keys())}")
+        
+        # 预编译正则
+        pattern_str = self.formats[log_type]['pattern']
+        self.pattern = re.compile(pattern_str)
+        self.fields = self.formats[log_type]['fields']
+    
+    def _load_formats(self, formats_file):
+        """加载日志格式配置文件"""
+        try:
+            path = Path(formats_file)
+            if not path.exists():
+                print(f"[-] 警告: 找不到格式文件 {formats_file}")
+                return {}
+            with open(path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except json.JSONDecodeError as e:
+            print(f"[-] 错误: 格式文件 JSON 解析失败 {e}")
+            return {}
     
     def parse(self, line):
         """
         解析单行日志
         :param line: 原始日志行
-        :return: 解析后的字典，包含字段，解析失败返回 None
+        :return: 解析后的字典，解析失败返回 None
         """
         if not line or not line.strip():
             return None
         
-        line = line.strip()
-        
-        # 根据日志类型选择解析方法
-        parsers = {
-            'nginx': self._parse_nginx,
-            'apache': self._parse_apache,
-            'syslog': self._parse_syslog
-        }
-        
-        parser = parsers.get(self.log_type)
-        if not parser:
-            raise ValueError(f"不支持的日志类型: {self.log_type}")
-        
-        return parser(line)
-    
-    def _parse_nginx(self, line):
-        """解析 Nginx 日志格式"""
-        match = self._nginx_pattern.search(line)
+        match = self.pattern.search(line.strip())
         if not match:
             return None
         
-        return {
-            'ip': match.group(1),
-            'time': match.group(2),
-            'method': match.group(3),
-            'url': match.group(4),
-            'status': match.group(5),
-            'size': match.group(6),
-            'referer': match.group(7),
-            'ua': match.group(8),
-            'raw_line': line,
-            'type': 'nginx'
-        }
-    
-    def _parse_apache(self, line):
-        """解析 Apache 日志格式（支持 Common 和 Combined）"""
-        match = self._apache_pattern.search(line)
-        if not match:
-            return None
+        # 根据 fields 构建字典
+        result = {}
+        for i, field_name in enumerate(self.fields, start=1):
+            result[field_name] = match.group(i)
         
-        result = {
-            'ip': match.group(1),
-            'time': match.group(2),
-            'method': match.group(3),
-            'url': match.group(4),
-            'status': match.group(5),
-            'size': match.group(6),
-            'raw_line': line,
-            'type': 'apache'
-        }
-        
-        # Apache Combined 格式有 referer 和 ua
-        if match.group(7) is not None:
-            result['referer'] = match.group(7)
-        if match.group(8) is not None:
-            result['ua'] = match.group(8)
-        
+        result['raw_line'] = line
+        result['type'] = self.log_type
         return result
     
-    def _parse_syslog(self, line):
-        """解析系统日志格式"""
-        match = self._syslog_pattern.search(line)
-        if not match:
-            return None
-        
-        return {
-            'timestamp': match.group(1),
-            'hostname': match.group(2),
-            'process': match.group(3),
-            'pid': match.group(4),
-            'message': match.group(5),
-            'raw_line': line,
-            'type': 'syslog'
-        }
-    
     def get_supported_types(self):
-        """返回支持的日志类型列表"""
-        return ['nginx', 'apache', 'syslog']
+        """获取支持的日志类型列表"""
+        return list(self.formats.keys())

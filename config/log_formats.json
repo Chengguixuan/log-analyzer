@@ -1,0 +1,14 @@
+{
+  "nginx": {
+    "pattern": "^(\\S+) - - \\[(.*?)\\] \"(\\S+) (\\S+) [^\"]+\" (\\d+) (\\d+) \"([^\"]*)\" \"([^\"]*)\"",
+    "fields": ["ip", "time", "method", "url", "status", "size", "referer", "ua"]
+  },
+  "apache_combined": {
+    "pattern": "^(\\S+) - - \\[(.*?)\\] \"(\\S+) (\\S+) [^\"]+\" (\\d+) (\\d+) \"([^\"]*)\" \"([^\"]*)\"",
+    "fields": ["ip", "time", "method", "url", "status", "size", "referer", "ua"]
+  },
+  "apache_common": {
+    "pattern": "^(\\S+) - - \\[(.*?)\\] \"(\\S+) (\\S+) [^\"]+\" (\\d+) (\\d+)$",
+    "fields": ["ip", "time", "method", "url", "status", "size"]
+  }
+}

